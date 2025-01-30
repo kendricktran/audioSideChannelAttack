@@ -68,9 +68,12 @@ def load_training_data(training_data_directory):
                     label = str(note_folder)[0]
                     print("Loaded note ", label, " with size ", mel_spectrogram.shape)
                     labels.append(label)  # use the folder name as the label for the note
-    labels = label_encoder.transform(labels)  # convert labels to integers
     
-
+    # First collect all labels, then fit the encoder
+    print(f"Found {len(set(labels))} unique labels: {set(labels)}")  # Debug labels
+    label_encoder.fit(labels)  # This is the critical missing step
+    labels = label_encoder.transform(labels)
+    
     return list(zip(mel_spectrograms, labels))
 
 

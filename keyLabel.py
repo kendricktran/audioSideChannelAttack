@@ -6,8 +6,13 @@ This file contains the keyLabel class, which is used to transform labels to inte
 
 class keyLabel:
     def __init__(self):
-        self.label_to_int = {b:a for a, b in enumerate(list("ABCDEFGHIJKLMNOPQRSTUVWXYZ*"))}
-        self.int_to_label = {a:b for a, b in enumerate(list("ABCDEFGHIJKLMNOPQRSTUVWXYZ*"))}
+        self.label_to_int = {}
+        self.int_to_label = {}
+
+    def fit(self, labels):
+        unique_labels = sorted(set(labels))
+        self.label_to_int = {label: idx for idx, label in enumerate(unique_labels)}
+        self.int_to_label = {idx: label for label, idx in self.label_to_int.items()}
 
     def transform(self, labels):
         return [self.label_to_int[label] for label in labels]

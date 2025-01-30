@@ -24,8 +24,8 @@ Arguments:
 
 '''
 # Define paths
-input_folder = 'keyboard_notes'
-output_folder = 'mel_spectrograms_(128x321)'
+input_folder = 'training_keys'
+output_folder = 'train_isolated'
 
 # Create output folder if it doesn't exist
 if not os.path.exists(output_folder):
@@ -48,4 +48,4 @@ for wav_file in wav_files:
         os.makedirs(output_subfolder)
 
     # Run LibrosaPeaks.py using subprocess
-    subprocess.run(['python3', 'LibrosaPeaks.py', note, input_path, output_subfolder])
+    subprocess.run(['python3', 'librosaPeaks.py', note, input_path, output_subfolder])

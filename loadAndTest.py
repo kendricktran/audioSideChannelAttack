@@ -23,7 +23,7 @@ Arguments:
 def main():
     # Load model weights
     model_weights = "model_weights.pth"
-    testing_folder = "45_testing_output"
+    testing_folder = "test_isolated"
 
     total = 45
     total_correct = 0

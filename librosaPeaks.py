@@ -40,8 +40,8 @@ def main():
     if (len(sys.argv) == 2):
         if (sys.argv[1] == "-test"):
             key = "#"
-            audiofile = "audiofiles/45keytest.wav"
-            output_folder = "45_testing_output"
+            audiofile = "training_keys/test.wav"
+            output_folder = "test_isolated"
     elif (len(sys.argv) == 4):
         key = sys.argv[1]
         audiofile = sys.argv[2]
@@ -225,7 +225,7 @@ def create_mel_spectrogram(segment, sr, i, key, output_folder):
     print("Creating Mel Spectrogram Number: ", i, " with shape: ", mel_spectrogram.shape)
 
     # Change this string to match the correct label for each keystroke. The * is a false detected note and the generated mel spectrogram will be ignored/deleted.
-    test_notes_list = list("*PLMNKOIHBUYGVCTFDXRESZAWQHDTPAQJUYRCMP*JAZPIRV")
+    test_notes_list = list("ppqq**")
 
     if (key == "#"):
         key = test_notes_list[i]
