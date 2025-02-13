@@ -4,6 +4,8 @@ import numpy as np
 import soundfile as sf
 import sys
 import os
+import cv2
+from config import config
 
 '''
 librosaPeaks.py
@@ -40,8 +42,8 @@ def main():
     if (len(sys.argv) == 2):
         if (sys.argv[1] == "-test"):
             key = "#"
-            audiofile = "training_keys/test.wav"
-            output_folder = "test_isolated"
+            audiofile = "raw_test/test.wav"
+            output_folder = "test_data"
     elif (len(sys.argv) == 4):
         key = sys.argv[1]
         audiofile = sys.argv[2]
@@ -170,12 +172,19 @@ def isolatePeaks(file, key):
     T = N/float(sr)
     t = np.linspace(0, T, len(onset_strength))
 
-    # Remove onsets that are too close together or too close to the end of the audio
-    # Create each note to be 40 frames long
-    notes_frames = [(onset_detect[0], onset_detect[0] + 40)]
-    for i in range(1, len(onset_detect)):
-        if onset_detect[i] - onset_detect[i-1] > 50 and onset_detect[i] + 40 < len(t):
-            notes_frames.append((onset_detect[i], onset_detect[i] + 40))
+    # Replace the existing onset detection with your tuned parameters
+    peaks = librosa.util.peak_pick(
+        onset_strength, 
+        pre_max=10,       # Reduced sensitivity: Wider pre-max window
+        post_max=10,      # Reduced sensitivity: Wider post-max window
+        pre_avg=15,       # Smoother baseline: Longer pre-average
+        post_avg=15,      # Smoother baseline: Longer post-average
+        delta=2.0,        # Higher threshold: Stronger peaks required
+        wait=60           # Longer spacing: 60 frames between notes (~0.5s)
+    )
+
+    # Keep existing note segmentation logic
+    notes_frames = [(peak, peak + 40) for peak in peaks if peak + 40 < len(t)]
 
     # Convert the note segments into samples
     note_begins = librosa.frames_to_samples([note[0] for note in notes_frames], hop_length=hop_length)
@@ -189,7 +198,7 @@ def isolatePeaks(file, key):
     # If doing training, save the notes to the notes folder
     if (key != "#"):
         for i, note in enumerate(notes_samples):
-            directory = os.path.join("training_notes", key)
+            directory = os.path.join("training_data", key)
             if not os.path.exists(directory):
                 os.makedirs(directory)
             sf.write(os.path.join(directory, key + '_note' + str(i) + '.wav'), note, sr)
@@ -219,9 +228,12 @@ Returns:
     None
 '''
 def create_mel_spectrogram(segment, sr, i, key, output_folder):
-
     # Compute the mel spectrogram
     mel_spectrogram = librosa.feature.melspectrogram(y=segment, sr=sr, hop_length=16)
+    
+    # Resize to 224x224
+    mel_spectrogram = cv2.resize(mel_spectrogram, (224, 224))
+    
     print("Creating Mel Spectrogram Number: ", i, " with shape: ", mel_spectrogram.shape)
 
     # Change this string to match the correct label for each keystroke. The * is a false detected note and the generated mel spectrogram will be ignored/deleted.

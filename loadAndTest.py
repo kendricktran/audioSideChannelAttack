@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import torch.nn.functional as F
 from keyLabel import keyLabel
-import config
+from config import config
 
 
 '''
@@ -22,15 +22,18 @@ Arguments:
 '''
 def main():
     # Load model weights
-    model_weights = "model_weights.pth"
-    testing_folder = "test_isolated"
+    model_weights = "model_weights.spth"
+    testing_folder = "test_data"
 
-    total = 45
+    total = 4
     total_correct = 0
 
     labeler = keyLabel()
+    
+    # Add this to ensure all class labels are known
+    labeler.fit(['p', 'q'])  # a-z labels
 
-    model = CoAtNet(config.img_size[0:2], config.img_size[2], config.num_blocks, config.channels, num_classes=config.num_classes)
+    model = CoAtNet((224, 224), config.img_size[2], config.num_blocks, config.channels, num_classes=config.num_classes)
     model.load_state_dict(torch.load(model_weights))
 
     os.system('python3 librosaPeaks.py -test')
@@ -39,7 +42,7 @@ def main():
         if file.endswith(".npy") and file[0] != "*":
             model.eval()
             x = np.load(os.path.join(testing_folder, file))
-            x = cv2.resize(x, config.img_size[0, 2])
+            x = cv2.resize(x, (224, 224))
             x = torch.from_numpy(x)
             x = x.unsqueeze(0)
             x = x.unsqueeze(0)

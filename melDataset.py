@@ -18,5 +18,6 @@ class melDataset(Dataset):
   def __getitem__(self, idx):
     x = self.data[idx][0]
     y = self.data[idx][1]
-
-    return torch.tensor(cv2.resize(x, (224, 224))), torch.tensor(y)
+    
+    # Resize to 224x224 and convert to tensor
+    return torch.tensor(x), torch.tensor(y)

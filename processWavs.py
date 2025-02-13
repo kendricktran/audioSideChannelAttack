@@ -24,8 +24,8 @@ Arguments:
 
 '''
 # Define paths
-input_folder = 'training_keys'
-output_folder = 'train_isolated'
+input_folder = 'raw_audio'
+output_folder = 'training_data'
 
 # Create output folder if it doesn't exist
 if not os.path.exists(output_folder):
