@@ -22,7 +22,7 @@ Arguments:
 '''
 def main():
     # Load model weights
-    model_weights = "model_weights.spth"
+    model_weights = "model_weights.pth"
     testing_folder = "test_data"
 
     total = 4

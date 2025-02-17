@@ -247,7 +247,7 @@ def main():
             history['test_acc'].append(test_acc)
         
         fold_history[f'fold{fold+1}'] = history
-    torch.save(model.state_dict(), "model_weights.spth")
+    torch.save(model.state_dict(), "model_weights.pth")
     np.save('history.npy', fold_history)
 
 if __name__ == "__main__":
