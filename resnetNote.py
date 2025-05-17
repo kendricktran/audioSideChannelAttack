@@ -85,7 +85,7 @@ def main():
     if (len(argv) > 1):
         training_data_directory = argv[1]
     else:
-        training_data_directory = 'mel_spectrograms_(128x321)'
+        training_data_directory = 'training_data'
 
     fold_history = {}
 

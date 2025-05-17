@@ -24,7 +24,7 @@ Arguments:
 
 '''
 # Define paths
-input_folder = 'raw_audio'
+input_folder = 'training_keys'
 output_folder = 'training_data'
 
 # Create output folder if it doesn't exist

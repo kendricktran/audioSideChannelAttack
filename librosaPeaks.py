@@ -237,7 +237,7 @@ def create_mel_spectrogram(segment, sr, i, key, output_folder):
     print("Creating Mel Spectrogram Number: ", i, " with shape: ", mel_spectrogram.shape)
 
     # Change this string to match the correct label for each keystroke. The * is a false detected note and the generated mel spectrogram will be ignored/deleted.
-    test_notes_list = list("ppqq**")
+    test_notes_list = list("the quick brown fox")
 
     if (key == "#"):
         key = test_notes_list[i]
