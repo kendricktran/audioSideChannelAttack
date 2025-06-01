@@ -42,7 +42,7 @@ def main():
     if (len(sys.argv) == 2):
         if (sys.argv[1] == "-test"):
             key = "#"
-            audiofile = "raw_test/test.wav"
+            audiofile = "raw_test_2/test_2.wav"
             output_folder = "test_data"
     elif (len(sys.argv) == 4):
         key = sys.argv[1]
@@ -55,7 +55,7 @@ def main():
     
     # Returns an array of tuples: (note_begin, note_end)
     sr, notes = isolatePeaks(audiofile, key)
-
+    print(sr)
     # Loop over each note and create a mel spectrogram
     for i, segment in enumerate(notes):
         create_mel_spectrogram(segment, sr, i, key, output_folder)
@@ -198,7 +198,7 @@ def isolatePeaks(file, key):
     # If doing training, save the notes to the notes folder
     if (key != "#"):
         for i, note in enumerate(notes_samples):
-            directory = os.path.join("training_data", key)
+            directory = os.path.join("training_data_2", key)
             if not os.path.exists(directory):
                 os.makedirs(directory)
             sf.write(os.path.join(directory, key + '_note' + str(i) + '.wav'), note, sr)
@@ -237,7 +237,7 @@ def create_mel_spectrogram(segment, sr, i, key, output_folder):
     print("Creating Mel Spectrogram Number: ", i, " with shape: ", mel_spectrogram.shape)
 
     # Change this string to match the correct label for each keystroke. The * is a false detected note and the generated mel spectrogram will be ignored/deleted.
-    test_notes_list = list("ppqq**")
+    test_notes_list = list("poiuytrewq")
 
     if (key == "#"):
         key = test_notes_list[i]

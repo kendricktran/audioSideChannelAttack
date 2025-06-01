@@ -2,8 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import models, transforms
-from torch.utils.data import DataLoader, SubsetRandomSampler
-from sklearn.model_selection import KFold
+from torch.utils.data import DataLoader, random_split
 from melDataset import melDataset
 from keyLabel import keyLabel
 from config import config
@@ -85,50 +84,47 @@ def main():
     if (len(argv) > 1):
         training_data_directory = argv[1]
     else:
-        training_data_directory = 'mel_spectrograms_(128x321)'
+        training_data_directory = 'training_data_2'
 
-    fold_history = {}
-
+    # Load and prepare data
     training_data = load_training_data(training_data_directory)
-
     dataset = melDataset(training_data)
 
-    splits = KFold(n_splits=config.num_splits, shuffle=True, random_state=1337)
+    # Split dataset into train and validation sets (80/20 split)
+    train_size = int(0.8 * len(dataset))
+    val_size = len(dataset) - train_size
+    train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
-    for fold, (train_idx, val_idx) in enumerate(splits.split(dataset)):
-        print('Fold {}'.format(fold + 1))
-        train_sampler = SubsetRandomSampler(train_idx)
-        test_sampler = SubsetRandomSampler(val_idx)
-        train_loader = DataLoader(dataset, batch_size=config.batch_size, sampler=train_sampler)
-        test_loader = DataLoader(dataset, batch_size=config.batch_size, sampler=test_sampler)
+    # Create data loaders
+    train_loader = DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=config.batch_size)
 
-        history = {'train_loss': [], 'test_loss': [], 'train_acc': [], 'test_acc': []}
+    history = {'train_loss': [], 'val_loss': [], 'train_acc': [], 'val_acc': []}
 
-        for epoch in range(config.epochs):
-            torch.cuda.empty_cache()
-            print('---train:')
-            train_loss, train_correct = train_epoch(model, train_loader)
-            print('\n---eval:')
-            test_loss, test_correct = valid_epoch(model, test_loader)
-            train_loss = train_loss / len(train_loader.sampler)
-            train_acc = train_correct / len(train_loader.sampler) * 100
-            test_loss = test_loss / len(test_loader.sampler)
-            test_acc = test_correct / len(test_loader.sampler) * 100
-            print('\n---status:')
-            print("\tEpoch:{}/{} \n\tAverage Training Loss:{:.4f}, Average Test Loss:{:.4f}; \n\tAverage Training Acc {:.2f}%, Average Test Acc {:.2f}%\n".format(epoch + 1,
-                                                                                                                                                                    config.epochs,
-                                                                                                                                                                    train_loss,
-                                                                                                                                                                    test_loss,
-                                                                                                                                                                    train_acc,
-                                                                                                                                                                    test_acc))
-            history['train_loss'].append(train_loss)
-            history['test_loss'].append(test_loss)
-            history['train_acc'].append(train_acc)
-            history['test_acc'].append(test_acc)
+    for epoch in range(config.epochs):
+        torch.cuda.empty_cache()
+        print('---train:')
+        train_loss, train_correct = train_epoch(model, train_loader)
+        print('\n---eval:')
+        val_loss, val_correct = valid_epoch(model, val_loader)
+        
+        train_loss = train_loss / len(train_loader.dataset)
+        train_acc = train_correct / len(train_loader.dataset) * 100
+        val_loss = val_loss / len(val_loader.dataset)
+        val_acc = val_correct / len(val_loader.dataset) * 100
+        
+        print('\n---status:')
+        print(f"\tEpoch:{epoch + 1}/{config.epochs}")
+        print(f"\tAverage Training Loss:{train_loss:.4f}, Average Validation Loss:{val_loss:.4f}")
+        print(f"\tAverage Training Acc {train_acc:.2f}%, Average Validation Acc {val_acc:.2f}%\n")
+        
+        history['train_loss'].append(train_loss)
+        history['val_loss'].append(val_loss)
+        history['train_acc'].append(train_acc)
+        history['val_acc'].append(val_acc)
 
-        fold_history[f'fold{fold+1}'] = history
-    torch.save(model.state_dict(), "resnet_model_weights.pth")
-    np.save('resnet_history.npy', fold_history)
+    torch.save(model.state_dict(), "resnet_model_weights_personal.pth")
+    np.save('resnet_history.npy', history)
 
 if __name__ == "__main__":
     main()
